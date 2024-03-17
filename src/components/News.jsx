@@ -5,8 +5,6 @@ import Nav from './Nav';
 import Search from './Search';
 
 export default function News(props) {
-    const { theme, setTheme } = props;
-
     const [news, setNews] = useState();
     const [searchQuery, setSearchQuery] = useState('');
     const [topicKey, setTopicKey] = useState('local');

@@ -1,21 +1,23 @@
 import { ConfigProvider, theme as antDTheme } from 'antd';
-import React, { useState } from 'react';
-import News from './News';
+import React from 'react';
+import News from './components/News';
+import { useThemeDetector } from './hooks/useThemeDetector';
 
 export default function App() {
-    const [theme, setTheme] = useState('light');
+    const isDarkTheme = useThemeDetector();
+
     return (
-        <>
+        <div style={{ width: '100%', background: isDarkTheme ? 'rgb(30,30,30)' : 'rgb(245,245,245)' }}>
             <ConfigProvider
                 theme={{
-                    algorithm: theme === 'dark' ? antDTheme.darkAlgorithm : antDTheme.defaultAlgorithm,
+                    algorithm: isDarkTheme ? antDTheme.darkAlgorithm : antDTheme.defaultAlgorithm,
+                    token: {
+                        colorPrimary: isDarkTheme ? 'rgb(62,164,247)' : 'rgb(52,126,221)',
+                    },
                 }}
             >
-                <News
-                    theme={theme}
-                    setTheme={setTheme}
-                />
+                <News />
             </ConfigProvider>
-        </>
+        </div>
     );
 }
