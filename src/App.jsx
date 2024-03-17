@@ -1,5 +1,6 @@
 import { ConfigProvider, theme as antDTheme } from 'antd';
 import React from 'react';
+import Footer from './components/Footer';
 import News from './components/News';
 import { useThemeDetector } from './hooks/useThemeDetector';
 
@@ -17,6 +18,7 @@ export default function App() {
                 }}
             >
                 <News />
+                <Footer />
             </ConfigProvider>
         </div>
     );
