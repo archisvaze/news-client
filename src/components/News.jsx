@@ -11,7 +11,7 @@ export default function News(props) {
 
     const [news, setNews] = useState();
     const [searchQuery, setSearchQuery] = useState('');
-    const [topicKey, setTopicKey] = useState('local');
+    const [topicKey, setTopicKey] = useState('home');
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState();
 

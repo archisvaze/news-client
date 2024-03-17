@@ -9,8 +9,8 @@ import { TiWiFi } from 'react-icons/ti';
 export default function Nav({ onChange, topicKey, setTopicKey }) {
     const items = [
         {
-            label: 'Local',
-            key: 'local',
+            label: 'Home',
+            key: 'home',
             id: '',
             icon: <IoMdHome size={20} />,
         },
