@@ -4,6 +4,8 @@ import { useEffect, useState } from 'react';
 import Nav from './Nav';
 import Search from './Search';
 
+//https://www.aakashweb.com/articles/google-news-rss-feed-url/
+
 export default function News(props) {
     const [news, setNews] = useState();
     const [searchQuery, setSearchQuery] = useState('');
