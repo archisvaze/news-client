@@ -1,7 +1,7 @@
 # Lookup News
 
 
-![Screenshot 2024-03-17 at 10 56 18 PM (2)](https://github.com/archisvaze/news-client/screenshots/screenshot.jpg)
+![Screenshot 2024-03-17 at 10 56 18 PM (2)](screenshots/screenshot.jpg)
 
 
 - [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
