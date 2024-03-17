@@ -1,23 +1,32 @@
 import { List, Spin } from 'antd';
 import moment from 'moment';
 import { useEffect, useState } from 'react';
+import Nav from './Nav';
+import Search from './Search';
 
 export default function News(props) {
     const { theme, setTheme } = props;
 
     const [news, setNews] = useState();
+    const [searchQuery, setSearchQuery] = useState('');
+    const [topicKey, setTopicKey] = useState('local');
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState();
 
-    async function fetchNews(search, hl, gl, ceid) {
+    async function fetchNews(search, hl, gl, ceid, topicId) {
         try {
             setIsLoading(true);
 
-            let url = 'http://localhost:8000/news';
+            let url = 'https://news-server-8uku.onrender.com/news';
             let hasParams = false;
 
             if (search) {
                 url += `?search=${encodeURIComponent(search)}`;
+                hasParams = true;
+            }
+
+            if (topicId) {
+                url += hasParams ? `&topicId=${topicId}` : `?topicId=${topicId}`;
                 hasParams = true;
             }
 
@@ -61,6 +70,23 @@ export default function News(props) {
                 spinning={isLoading}
                 fullscreen
             />
+            <Nav
+                onChange={(topicId) => {
+                    fetchNews(null, null, null, null, topicId);
+                }}
+                topicKey={topicKey}
+                setTopicKey={setTopicKey}
+            />
+            <div style={{ padding: '24px' }}>
+                <Search
+                    onSearch={(query) => {
+                        setTopicKey('');
+                        fetchNews(query);
+                    }}
+                    searchQuery={searchQuery}
+                    setSearchQuery={setSearchQuery}
+                />
+            </div>
 
             <List
                 size='large'
