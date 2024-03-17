@@ -7,6 +7,8 @@ import Search from './Search';
 //https://www.aakashweb.com/articles/google-news-rss-feed-url/
 
 export default function News(props) {
+    const { bgColor } = props;
+
     const [news, setNews] = useState();
     const [searchQuery, setSearchQuery] = useState('');
     const [topicKey, setTopicKey] = useState('local');
@@ -51,13 +53,22 @@ export default function News(props) {
             }
 
             const data = await response.json();
-            setNews(data.items);
+            const slicedNews = data?.items?.slice(0, 15);
+            setNews(slicedNews);
+            scrollToTop();
         } catch (error) {
             setError(error.message);
         } finally {
             setIsLoading(false);
         }
     }
+
+    const scrollToTop = () => {
+        window.scrollTo({
+            top: 0,
+            behavior: 'smooth',
+        });
+    };
 
     useEffect(() => {
         fetchNews();
@@ -70,50 +81,66 @@ export default function News(props) {
                 spinning={isLoading}
                 fullscreen
             />
-            <Nav
-                onChange={(topicId) => {
-                    fetchNews(null, null, null, null, topicId);
+            <div
+                className='shadow'
+                style={{
+                    position: 'fixed',
+                    top: '0',
+                    left: '0',
+                    width: '100%',
+                    background: bgColor,
+                    zIndex: '10',
                 }}
-                topicKey={topicKey}
-                setTopicKey={setTopicKey}
-            />
-            <div style={{ padding: '24px' }}>
-                <Search
-                    onSearch={(query) => {
-                        setTopicKey('');
-                        fetchNews(query);
+            >
+                <Nav
+                    onChange={(topicId) => {
+                        fetchNews(null, null, null, null, topicId);
                     }}
-                    searchQuery={searchQuery}
-                    setSearchQuery={setSearchQuery}
+                    topicKey={topicKey}
+                    setTopicKey={setTopicKey}
                 />
+                <div style={{ padding: '24px' }}>
+                    <Search
+                        onSearch={(query) => {
+                            setTopicKey('');
+                            fetchNews(query);
+                        }}
+                        searchQuery={searchQuery}
+                        setSearchQuery={setSearchQuery}
+                    />
+                </div>
             </div>
 
-            <List
-                size='large'
-                itemLayout='horizontal'
-                dataSource={news}
-                renderItem={(item, index) => {
-                    const gmtDateTime = moment(item.pubDate);
-                    const localDate = gmtDateTime.local();
-                    return (
-                        <List.Item style={{ padding: '32px 24px' }}>
-                            <List.Item.Meta
-                                title={
-                                    <a
-                                        style={{ fontSize: '16px' }}
-                                        href={item.link}
-                                        target='_blank'
-                                    >
-                                        {item.title}
-                                    </a>
-                                }
-                                description={<span style={{ marginBottom: '12px' }}>{localDate.format('dddd, MMMM Do YYYY, h:mm a')}</span>}
-                            />
-                            {item.contentSnippet}
-                        </List.Item>
-                    );
-                }}
-            />
+            <main style={{ paddingTop: '144px' }}>
+                <List
+                    size='large'
+                    itemLayout='horizontal'
+                    dataSource={news}
+                    renderItem={(item, index) => {
+                        const gmtDateTime = moment(item.pubDate);
+                        const localDate = gmtDateTime.local();
+                        return (
+                            <List.Item style={{ padding: '32px 24px' }}>
+                                <List.Item.Meta
+                                    title={
+                                        <a
+                                            style={{ fontSize: '16px' }}
+                                            href={item.link}
+                                            target='_blank'
+                                        >
+                                            {item.title}
+                                        </a>
+                                    }
+                                    description={
+                                        <span style={{ marginBottom: '12px' }}>{localDate.format('dddd, MMMM Do YYYY, h:mm a')}</span>
+                                    }
+                                />
+                                {item.contentSnippet}
+                            </List.Item>
+                        );
+                    }}
+                />
+            </main>
         </div>
     );
 }

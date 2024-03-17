@@ -1,6 +1,6 @@
 import React from 'react';
 
-export default function Footer() {
+export default function Footer({ color }) {
     return (
         <footer
             style={{
@@ -17,7 +17,7 @@ export default function Footer() {
             <a
                 href='https://archisvaze.vercel.app/'
                 target='_blank'
-                style={{ fontSize: '12px' }}
+                style={{ fontSize: '12px', color: color, textDecoration: 'none' }}
             >
                 Made by Archis
             </a>
