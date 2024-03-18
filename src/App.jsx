@@ -16,6 +16,7 @@ export default function App() {
                 width: '100%',
                 background: bgColor,
                 color: textColor,
+                minHeight: '100vh',
             }}
         >
             <ConfigProvider

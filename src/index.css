@@ -5,10 +5,6 @@
     font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
 }
 
-body {
-    min-height: 100vh;
-}
-
 button {
     display: flex !important;
     justify-content: center !important;
