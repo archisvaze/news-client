@@ -1,5 +1,5 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import { List, Spin } from 'antd';
+import { Alert, List, Spin } from 'antd';
 import moment from 'moment';
 import { useEffect, useState } from 'react';
 import { LOCATION_MAP } from '../location';
@@ -7,75 +7,61 @@ import Nav from './Nav';
 import RegionPicker from './RegionPicker';
 import Search from './Search';
 
-export default function News(props) {
-    const { bgColor } = props;
-
-    const [news, setNews] = useState();
+export default function News({ bgColor }) {
+    const [news, setNews] = useState([]);
     const [searchQuery, setSearchQuery] = useState('');
     const [topicKey, setTopicKey] = useState('home');
+    const [topicId, setTopicId] = useState('');
     const [isLoading, setIsLoading] = useState(false);
-    const [error, setError] = useState();
+    const [error, setError] = useState(null);
     const [location, setLocation] = useState('US-en');
 
-    async function fetchNews(search, locale, topicId) {
+    async function fetchNews({ search, locale, topicId }) {
         try {
             setIsLoading(true);
+            setError(null);
 
-            let url = '/api/news';
-            let hasParams = false;
-
-            const { hl, gl, ceid } = LOCATION_MAP[locale];
-
-            if (search) {
-                url += `?search=${encodeURIComponent(search)}`;
-                hasParams = true;
+            const region = LOCATION_MAP[locale];
+            if (!region) {
+                throw new Error(`Invalid region: ${locale}`);
             }
 
-            if (topicId) {
-                url += hasParams ? `&topicId=${topicId}` : `?topicId=${topicId}`;
-                hasParams = true;
-            }
+            const { hl, gl, ceid } = region;
 
-            if (hl) {
-                url += hasParams ? `&hl=${hl}` : `?hl=${hl}`;
-                hasParams = true;
-            }
+            const params = new URLSearchParams();
 
-            if (gl) {
-                url += hasParams ? `&gl=${gl}` : `?gl=${gl}`;
-                hasParams = true;
-            }
+            if (search) params.append('search', search);
+            if (topicId) params.append('topicId', topicId);
 
-            if (ceid) {
-                url += hasParams ? `&ceid=${ceid}` : `?ceid=${ceid}`;
-            }
+            params.append('hl', hl);
+            params.append('gl', gl);
+            params.append('ceid', ceid);
+
+            const url = `/api/news?${params.toString()}`;
 
             const response = await fetch(url);
-
             if (!response.ok) {
-                throw new Error('Network response was not ok');
+                throw new Error(`Network error: ${response.status}`);
             }
 
             const data = await response.json();
-            const slicedNews = data?.items?.slice(0, 15);
-            setNews(slicedNews);
-            scrollToTop();
-        } catch (error) {
-            setError(error.message);
+
+            if (!data?.items) {
+                throw new Error('Invalid API response from RSS parser.');
+            }
+
+            setNews(data.items.slice(0, 15));
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        } catch (err) {
+            console.error('Fetch error:', err);
+            setError(err.message || 'Something went wrong fetching news.');
         } finally {
             setIsLoading(false);
         }
     }
 
-    const scrollToTop = () => {
-        window.scrollTo({
-            top: 0,
-            behavior: 'smooth',
-        });
-    };
-
     useEffect(() => {
-        fetchNews(null, location, null);
+        fetchNews({ search: null, locale: location, topicId: '' });
     }, []);
 
     return (
@@ -85,52 +71,92 @@ export default function News(props) {
                 spinning={isLoading}
                 fullscreen
             />
+
             <div
                 className='shadow'
                 style={{
                     position: 'fixed',
-                    top: '0',
-                    left: '0',
+                    top: 0,
+                    left: 0,
                     width: '100%',
                     background: bgColor,
-                    zIndex: '10',
+                    zIndex: 10,
                 }}
             >
+                {/* TOPIC NAVIGATION */}
                 <Nav
-                    onChange={(topicId) => {
+                    onChange={(realTopicId) => {
                         setSearchQuery('');
-                        fetchNews(null, location, topicId);
+                        setTopicId(realTopicId); // <-- actual Google topic
+                        fetchNews({
+                            search: null,
+                            locale: location,
+                            topicId: realTopicId,
+                        });
                     }}
                     topicKey={topicKey}
                     setTopicKey={setTopicKey}
                 />
-                <div style={{ padding: '24px', display: 'flex', justifyContent: 'center', alignItems: 'stretch', gap: '12px' }}>
+
+                {/* SEARCH + REGION PICKER */}
+                <div
+                    style={{
+                        padding: '24px',
+                        display: 'flex',
+                        justifyContent: 'center',
+                        alignItems: 'stretch',
+                        gap: '12px',
+                    }}
+                >
                     <Search
                         onSearch={(query) => {
-                            setTopicKey('');
-                            fetchNews(query, location, null);
+                            setTopicKey(''); // remove active topic
+                            setTopicId(null);
+                            setSearchQuery(query);
+                            fetchNews({
+                                search: query,
+                                locale: location,
+                                topicId: null,
+                            });
                         }}
                         searchQuery={searchQuery}
                         setSearchQuery={setSearchQuery}
                     />
+
                     <RegionPicker
                         location={location}
                         setLocation={(newLocation) => {
                             setLocation(newLocation);
-                            fetchNews(searchQuery, newLocation, topicKey);
+                            fetchNews({
+                                search: searchQuery,
+                                locale: newLocation,
+                                topicId: topicId || '',
+                            });
                         }}
                     />
                 </div>
             </div>
 
             <main style={{ paddingTop: '144px' }}>
+                {/* ERROR UI */}
+                {error && (
+                    <div style={{ margin: '24px' }}>
+                        <Alert
+                            message='Error Fetching News'
+                            description={error}
+                            type='error'
+                            showIcon
+                        />
+                    </div>
+                )}
+
+                {/* NEWS LIST */}
                 <List
                     size='large'
                     itemLayout='horizontal'
                     dataSource={news}
-                    renderItem={(item, index) => {
-                        const gmtDateTime = moment(item.pubDate);
-                        const localDate = gmtDateTime.local();
+                    renderItem={(item) => {
+                        const localDate = moment(item.pubDate).local();
                         return (
                             <List.Item style={{ padding: '32px 24px' }}>
                                 <List.Item.Meta
@@ -148,7 +174,7 @@ export default function News(props) {
                                         <span style={{ marginBottom: '12px' }}>{localDate.format('dddd, MMMM Do YYYY, h:mm a')}</span>
                                     }
                                 />
-                                {item.contentSnippet}
+                                {item?.contentSnippet}
                             </List.Item>
                         );
                     }}

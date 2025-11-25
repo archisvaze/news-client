@@ -1,5 +1,4 @@
 import { Button, Input } from 'antd';
-import React from 'react';
 import { FaSearch } from 'react-icons/fa';
 import { MdClose } from 'react-icons/md';
 
@@ -29,7 +28,10 @@ export default function Search({ onSearch, searchQuery, setSearchQuery }) {
                 <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
                     <Button
                         disabled={searchQuery.trim().length < 2}
-                        onClick={() => setSearchQuery('')}
+                        onClick={() => {
+                            setSearchQuery('');
+                            onSearch('');
+                        }}
                         type='link'
                     >
                         <MdClose size={16} />
