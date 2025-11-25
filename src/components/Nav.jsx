@@ -1,5 +1,4 @@
 import { Menu } from 'antd';
-import React from 'react';
 import { BiSolidMoviePlay, BiWorld } from 'react-icons/bi';
 import { IoMdHome } from 'react-icons/io';
 import { MdSportsBaseball } from 'react-icons/md';

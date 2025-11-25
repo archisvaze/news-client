@@ -1,7 +1,10 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { List, Spin } from 'antd';
 import moment from 'moment';
 import { useEffect, useState } from 'react';
+import { LOCATION_MAP } from '../location';
 import Nav from './Nav';
+import RegionPicker from './RegionPicker';
 import Search from './Search';
 
 export default function News(props) {
@@ -12,13 +15,16 @@ export default function News(props) {
     const [topicKey, setTopicKey] = useState('home');
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState();
+    const [location, setLocation] = useState('US-en');
 
-    async function fetchNews(search, hl, gl, ceid, topicId) {
+    async function fetchNews(search, locale, topicId) {
         try {
             setIsLoading(true);
 
-            let url = 'https://news-server-8uku.onrender.com/news';
+            let url = '/api/news';
             let hasParams = false;
+
+            const { hl, gl, ceid } = LOCATION_MAP[locale];
 
             if (search) {
                 url += `?search=${encodeURIComponent(search)}`;
@@ -69,7 +75,7 @@ export default function News(props) {
     };
 
     useEffect(() => {
-        fetchNews();
+        fetchNews(null, location, null);
     }, []);
 
     return (
@@ -92,19 +98,27 @@ export default function News(props) {
             >
                 <Nav
                     onChange={(topicId) => {
-                        fetchNews(null, null, null, null, topicId);
+                        setSearchQuery('');
+                        fetchNews(null, location, topicId);
                     }}
                     topicKey={topicKey}
                     setTopicKey={setTopicKey}
                 />
-                <div style={{ padding: '24px' }}>
+                <div style={{ padding: '24px', display: 'flex', justifyContent: 'center', alignItems: 'stretch', gap: '12px' }}>
                     <Search
                         onSearch={(query) => {
                             setTopicKey('');
-                            fetchNews(query);
+                            fetchNews(query, location, null);
                         }}
                         searchQuery={searchQuery}
                         setSearchQuery={setSearchQuery}
+                    />
+                    <RegionPicker
+                        location={location}
+                        setLocation={(newLocation) => {
+                            setLocation(newLocation);
+                            fetchNews(searchQuery, newLocation, topicKey);
+                        }}
                     />
                 </div>
             </div>
@@ -125,6 +139,7 @@ export default function News(props) {
                                             style={{ fontSize: '16px' }}
                                             href={item.link}
                                             target='_blank'
+                                            rel='noreferrer'
                                         >
                                             {item.title}
                                         </a>

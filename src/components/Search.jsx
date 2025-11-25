@@ -19,6 +19,7 @@ export default function Search({ onSearch, searchQuery, setSearchQuery }) {
 
     return (
         <Input
+            style={{ height: '50px', maxHeight: '50px' }}
             size='large'
             placeholder='Search'
             value={searchQuery}
