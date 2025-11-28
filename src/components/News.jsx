@@ -97,47 +97,47 @@ export default function News({ bgColor }) {
                     topicKey={topicKey}
                     setTopicKey={setTopicKey}
                 />
-
-                {/* SEARCH + REGION PICKER */}
-                <div
-                    style={{
-                        padding: '24px',
-                        display: 'flex',
-                        justifyContent: 'center',
-                        alignItems: 'stretch',
-                        gap: '12px',
-                    }}
-                >
-                    <Search
-                        onSearch={(query) => {
-                            setTopicKey(''); // remove active topic
-                            setTopicId(null);
-                            setSearchQuery(query);
-                            fetchNews({
-                                search: query,
-                                locale: location,
-                                topicId: null,
-                            });
-                        }}
-                        searchQuery={searchQuery}
-                        setSearchQuery={setSearchQuery}
-                    />
-
-                    <RegionPicker
-                        location={location}
-                        setLocation={(newLocation) => {
-                            setLocation(newLocation);
-                            fetchNews({
-                                search: searchQuery,
-                                locale: newLocation,
-                                topicId: topicId || '',
-                            });
-                        }}
-                    />
-                </div>
             </div>
 
-            <main style={{ paddingTop: '144px' }}>
+            <div
+                style={{
+                    padding: '100px 24px 24px 24px',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    justifyContent: 'center',
+                    alignItems: 'flex-end',
+                    gap: '12px',
+                }}
+            >
+                <Search
+                    onSearch={(query) => {
+                        setTopicKey(''); // remove active topic
+                        setTopicId(null);
+                        setSearchQuery(query);
+                        fetchNews({
+                            search: query,
+                            locale: location,
+                            topicId: null,
+                        });
+                    }}
+                    searchQuery={searchQuery}
+                    setSearchQuery={setSearchQuery}
+                />
+
+                <RegionPicker
+                    location={location}
+                    setLocation={(newLocation) => {
+                        setLocation(newLocation);
+                        fetchNews({
+                            search: searchQuery,
+                            locale: newLocation,
+                            topicId: topicId || '',
+                        });
+                    }}
+                />
+            </div>
+
+            <main style={{ paddingTop: '0' }}>
                 {/* ERROR UI */}
                 {error && (
                     <div style={{ margin: '24px' }}>
